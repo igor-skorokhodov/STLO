@@ -2052,6 +2052,14 @@ img {
   line-height: 1.1;
 }
 
+.tel {
+    display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  align-items: end;
+  justify-content: end;
+}
+
 .brand__text_footer {
   color: white;
 }
@@ -3706,6 +3714,10 @@ body.brands-modal-open {
     padding: 14px;
   }
 
+    .slider-caption h1 {
+    font-size: 24px;
+  }
+
   #brandsModal .brands-modal-content,
   .brands-modal .brands-modal-content {
     max-height: 88dvh;
@@ -3742,7 +3754,7 @@ body.brands-modal-open {
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
+    touch-action: pan-y;
     scrollbar-width: none;
   }
 
@@ -3955,4 +3967,123 @@ body { color: var(--text); background: #fff; }
   .header__row { min-height: 66px; }
   .section { padding: 58px 0; }
   .slider-caption h1 { font-size: clamp(26px, 8vw, 38px); }
+}
+
+
+
+/* =========================================================
+   MOBILE SLIDERS: сертификаты и логотипы
+   Только для экранов до 768px.
+   ========================================================= */
+
+@media (max-width: 768px) {
+  /* ---------- Сертификаты ---------- */
+
+  .testing_container {
+    /* Компенсируем край контейнера:
+       так будет видна часть следующего сертификата */
+    margin-right: -16px;
+  }
+
+  .certs {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+
+    /* Перезаписываем desktop margin: 30px */
+    margin: 24px 0;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    padding: 4px 16px 12px 0;
+
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+
+    /* Вертикальный свайп остаётся прокруткой страницы */
+    touch-action: pan-y;
+
+    /* Скрываем полосу прокрутки */
+    scrollbar-width: none;
+  }
+
+  .certs::-webkit-scrollbar {
+    display: none;
+  }
+
+  #testing .certs img,
+  .certs img {
+    /* Перезаписываем текущие max-width: 170px */
+    flex: 0 0 min(58vw, 220px);
+    width: min(58vw, 220px);
+    max-width: none;
+
+    height: auto;
+    aspect-ratio: 1 / 1.414;
+    object-fit: cover;
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+
+    /*
+      Не отключаем pointer-events:
+      клик по картинке продолжит открывать ваш попап.
+    */
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
+  /* Убираем hover-подъём, который на телефонах
+     иногда «залипает» после тапа. */
+  .certs img:hover {
+    transform: none;
+    box-shadow: 0 8px 20px rgba(0, 43, 92, 0.1);
+  }
+
+  /* ---------- Логотипы и знаки ---------- */
+
+  .certs_logos {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+
+    min-height: 0;
+    padding: 16px 0 16px 16px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+
+    scrollbar-width: none;
+  }
+
+  .certs_logos::-webkit-scrollbar {
+    display: none;
+  }
+
+  .certs_logos img {
+    display: block;
+    flex: 0 0 130px;
+
+    width: 130px;
+    max-width: none;
+    height: 76px;
+    object-fit: contain;
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+
+    -webkit-user-drag: none;
+    user-select: none;
+  }
 }
