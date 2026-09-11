@@ -433,6 +433,7 @@ body.modal-open {
   box-sizing: border-box;
   color: #000000;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin: 18px;
 }
 
 .product-card:hover {
@@ -3996,7 +3997,6 @@ body { color: var(--text); background: #fff; }
 #catalog .catalog-grid > .product-card {
   display: grid;
   flex: 0 0 calc((100% - 32px) / 3);
-  min-width: 320px;
 
   scroll-snap-align: start;
   scroll-snap-stop: normal;
@@ -4090,6 +4090,7 @@ body { color: var(--text); background: #fff; }
     flex: 0 0 86%;
     width: 86%;
     min-width: 0;
+    margin-left: 20px;
 
     scroll-snap-align: start;
     scroll-snap-stop: always;
