@@ -412,8 +412,8 @@ if (catalogGrid) {
   let isPointerDown = false;
   let isDragging = false;
 
-  const DIRECTION_THRESHOLD = 8;
-  const HORIZONTAL_SENSITIVITY = 0.7;
+  const DIRECTION_THRESHOLD = 6;
+  const HORIZONTAL_SENSITIVITY = 1.6;
   const DESKTOP_QUERY = window.matchMedia('(hover: hover) and (pointer: fine)');
 
   // ---------------------------------------------------------
