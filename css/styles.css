@@ -2697,7 +2697,7 @@ img {
   scroll-snap-type: x proximity;
 
   cursor: grab;
-  touch-action: pan-y;
+  touch-action: pan-y pan-x;
   -webkit-overflow-scrolling: touch;
 
   /* Скрываем нативную горизонтальную полосу прокрутки */
