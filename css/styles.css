@@ -4091,6 +4091,8 @@ body { color: var(--text); background: #fff; }
     width: 86%;
     min-width: 0;
     margin-left: 20px;
+            align-items: center;
+        justify-content: center;
 
     scroll-snap-align: start;
     scroll-snap-stop: always;
