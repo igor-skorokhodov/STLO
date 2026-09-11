@@ -1255,22 +1255,33 @@ if (catalogGrid) {
     goToQuizStep(1);
   }
 
-  // =========================================================
-  // МОБИЛЬНОЕ МЕНЮ
-  // =========================================================
 
-  const navToggle = document.querySelector('.nav__toggle');
-  const navMenu = document.getElementById('navMenu');
+// =========================================================
+// МОБИЛЬНОЕ МЕНЮ
+// =========================================================
 
-  if (navToggle && navMenu) {
-    navToggle.addEventListener('click', function () {
-      const expanded =
-        navToggle.getAttribute('aria-expanded') === 'true';
+const navToggle = document.querySelector('.nav__toggle');
+const navMenu = document.getElementById('navMenu');
 
-      navToggle.setAttribute('aria-expanded', String(!expanded));
-      navMenu.classList.toggle('is-open');
-    });
-  }
+if (navToggle && navMenu) {
+  navToggle.addEventListener('click', function () {
+    const expanded = navToggle.getAttribute('aria-expanded') === 'true';
+
+    navToggle.setAttribute('aria-expanded', String(!expanded));
+    navMenu.classList.toggle('is-open');
+  });
+
+  // Закрытие меню при клике в любой области вне меню
+  document.addEventListener('click', function (event) {
+    const clickedInsideMenu = navMenu.contains(event.target);
+    const clickedOnToggle = navToggle.contains(event.target);
+
+    if (!clickedInsideMenu && !clickedOnToggle && navMenu.classList.contains('is-open')) {
+      navMenu.classList.remove('is-open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
 
   // =========================================================
   // ОСНОВНОЙ СЛАЙДЕР

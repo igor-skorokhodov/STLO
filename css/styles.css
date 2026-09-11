@@ -433,7 +433,6 @@ body.modal-open {
   box-sizing: border-box;
   color: #000000;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  margin: 18px;
 }
 
 .product-card:hover {
@@ -3885,7 +3884,7 @@ body { color: var(--text); background: #fff; }
 @media (max-width: 767px) {
   .header__row { min-height: 66px; }
   .section { padding: 58px 0; }
-  .slider-caption h1 { font-size: clamp(26px, 8vw, 38px); }
+  .slider-caption h1 { font-size: 24px; }
 }
 
 
