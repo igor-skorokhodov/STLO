@@ -395,54 +395,97 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-
- // =========================================================
-// ГОРИЗОНТАЛЬНЫЙ СЛАЙДЕР КАТАЛОГА: МОБИЛЬНЫЕ + ДЕСКТОП
-// — mobile: горизонтальный свайп, вертикальная прокрутка сохранена;
-// — desktop: перетаскивание мышью + стрелки влево / вправо.
+// =========================================================
+// КАТАЛОГ: ГОРИЗОНТАЛЬНЫЙ СЛАЙДЕР + ВКЛАДКИ КАТЕГОРИЙ
+// Mobile: очень чувствительный горизонтальный свайп.
+// Desktop: перетаскивание мышью + стрелки.
 // =========================================================
 
-const catalogGrid = document.querySelector('.catalog-grid');
+const catalog = document.querySelector('#catalog');
+const catalogGrid = catalog?.querySelector('.catalog-grid');
 
 if (catalogGrid) {
+  // ---------------------------------------------------------
+  // НАСТРОЙКИ ЧУВСТВИТЕЛЬНОСТИ
+  // ---------------------------------------------------------
+
+  // Слайдер начинает определять жест практически сразу.
+  const DIRECTION_THRESHOLD = 1;
+
+  // 1px движения пальца / мыши = 2px прокрутки каталога.
+  // Если покажется слишком быстро — уменьшите до 1.6.
+  const HORIZONTAL_SENSITIVITY = 2;
+
+  // Горизонтальный жест получает приоритет даже при небольшом
+  // вертикальном смещении пальца во время свайпа.
+  const HORIZONTAL_DIRECTION_RATIO = 0.35;
+
+  const DESKTOP_QUERY = window.matchMedia(
+    '(hover: hover) and (pointer: fine)'
+  );
+
   let startX = 0;
   let startY = 0;
   let startScrollLeft = 0;
+
   let gestureDirection = null;
+  let activePointerId = null;
   let isPointerDown = false;
   let isDragging = false;
-
-  const DIRECTION_THRESHOLD = 2;
-  const HORIZONTAL_SENSITIVITY = 1.6;
-  const DESKTOP_QUERY = window.matchMedia('(hover: hover) and (pointer: fine)');
+  let preventNextClick = false;
 
   // ---------------------------------------------------------
-  // Создаём кнопки-стрелки для десктопа.
-  // Обёртка нужна, чтобы удобно расположить кнопки поверх слайдера.
+  // СТРЕЛКИ ДЛЯ DESKTOP
   // ---------------------------------------------------------
 
-  const sliderWrapper = document.createElement('div');
-  sliderWrapper.className = 'catalog-slider';
+  let sliderWrapper = catalogGrid.parentElement;
 
-  catalogGrid.parentNode.insertBefore(sliderWrapper, catalogGrid);
-  sliderWrapper.appendChild(catalogGrid);
+  // Не создаём вторую обёртку/стрелки, если скрипт случайно
+  // подключён два раза.
+  if (!sliderWrapper?.classList.contains('catalog-slider')) {
+    sliderWrapper = document.createElement('div');
+    sliderWrapper.className = 'catalog-slider';
 
-  const prevButton = document.createElement('button');
-  prevButton.type = 'button';
-  prevButton.className = 'catalog-slider__arrow catalog-slider__arrow--prev';
-  prevButton.setAttribute('aria-label', 'Показать предыдущие товары');
-  prevButton.innerHTML = '&#10094;';
+    catalogGrid.parentNode.insertBefore(sliderWrapper, catalogGrid);
+    sliderWrapper.appendChild(catalogGrid);
+  }
 
-  const nextButton = document.createElement('button');
-  nextButton.type = 'button';
-  nextButton.className = 'catalog-slider__arrow catalog-slider__arrow--next';
-  nextButton.setAttribute('aria-label', 'Показать следующие товары');
-  nextButton.innerHTML = '&#10095;';
+  let prevButton = sliderWrapper.querySelector(
+    '.catalog-slider__arrow--prev'
+  );
 
-  sliderWrapper.append(prevButton, nextButton);
+  let nextButton = sliderWrapper.querySelector(
+    '.catalog-slider__arrow--next'
+  );
 
-  // Листаем примерно на ширину видимой области,
-  // оставляя часть следующей карточки в поле зрения.
+  if (!prevButton) {
+    prevButton = document.createElement('button');
+    prevButton.type = 'button';
+    prevButton.className =
+      'catalog-slider__arrow catalog-slider__arrow--prev';
+    prevButton.setAttribute(
+      'aria-label',
+      'Показать предыдущие товары'
+    );
+    prevButton.innerHTML = '&#10094;';
+
+    sliderWrapper.appendChild(prevButton);
+  }
+
+  if (!nextButton) {
+    nextButton = document.createElement('button');
+    nextButton.type = 'button';
+    nextButton.className =
+      'catalog-slider__arrow catalog-slider__arrow--next';
+    nextButton.setAttribute(
+      'aria-label',
+      'Показать следующие товары'
+    );
+    nextButton.innerHTML = '&#10095;';
+
+    sliderWrapper.appendChild(nextButton);
+  }
+
   function getScrollStep() {
     return Math.max(catalogGrid.clientWidth * 0.8, 250);
   }
@@ -454,52 +497,88 @@ if (catalogGrid) {
     });
   }
 
-  prevButton.addEventListener('click', () => scrollCatalog(-1));
-  nextButton.addEventListener('click', () => scrollCatalog(1));
+  prevButton.addEventListener('click', function () {
+    scrollCatalog(-1);
+  });
 
-  // Скрываем неактуальную стрелку:
-  // левую — в начале, правую — в конце каталога.
+  nextButton.addEventListener('click', function () {
+    scrollCatalog(1);
+  });
+
   function updateArrows() {
     const hasHorizontalScroll =
-      catalogGrid.scrollWidth > catalogGrid.clientWidth + 1;
+      catalogGrid.scrollWidth > catalogGrid.clientWidth + 2;
 
-    const isAtStart = catalogGrid.scrollLeft <= 1;
+    const isAtStart = catalogGrid.scrollLeft <= 2;
 
     const isAtEnd =
       catalogGrid.scrollLeft + catalogGrid.clientWidth >=
-      catalogGrid.scrollWidth - 1;
+      catalogGrid.scrollWidth - 2;
 
     prevButton.disabled = !hasHorizontalScroll || isAtStart;
     nextButton.disabled = !hasHorizontalScroll || isAtEnd;
   }
 
-  catalogGrid.addEventListener('scroll', updateArrows, { passive: true });
-  window.addEventListener('resize', updateArrows);
+  catalogGrid.addEventListener('scroll', updateArrows, {
+    passive: true
+  });
 
-  // Ждём отрисовку/загрузку карточек перед первой проверкой.
+  window.addEventListener('resize', updateArrows, {
+    passive: true
+  });
+
+  // Это событие вызывается после смены категории.
+  catalogGrid.addEventListener('catalog:refresh', function () {
+    requestAnimationFrame(updateArrows);
+  });
+
   requestAnimationFrame(updateArrows);
 
   // ---------------------------------------------------------
-  // Перетаскивание слайдера пальцем и мышью.
+  // DRAG / SWIPE
   // ---------------------------------------------------------
+
+  function isInteractiveElement(target) {
+    return target.closest(
+      [
+        'button',
+        'input',
+        'select',
+        'textarea',
+        'label',
+        'a',
+        '[role="button"]',
+        '[data-no-slider-drag]'
+      ].join(', ')
+    );
+  }
 
   catalogGrid.addEventListener(
     'pointerdown',
     function (event) {
-      // Не обрабатываем правую и среднюю кнопку мыши.
+      // Правую и среднюю кнопку мыши не обрабатываем.
       if (event.pointerType === 'mouse' && event.button !== 0) {
+        return;
+      }
+
+      /*
+        Не перехватываем старт взаимодействия с кнопкой, ссылкой,
+        полем, стрелкой слайдера товара и т. д.
+        Их собственные скрипты продолжают работать.
+      */
+      if (isInteractiveElement(event.target)) {
         return;
       }
 
       isPointerDown = true;
       isDragging = false;
+      preventNextClick = false;
       gestureDirection = null;
+      activePointerId = event.pointerId;
 
       startX = event.clientX;
       startY = event.clientY;
       startScrollLeft = catalogGrid.scrollLeft;
-
-      catalogGrid.setPointerCapture?.(event.pointerId);
     },
     { passive: true }
   );
@@ -507,7 +586,10 @@ if (catalogGrid) {
   catalogGrid.addEventListener(
     'pointermove',
     function (event) {
-      if (!isPointerDown) {
+      if (
+        !isPointerDown ||
+        activePointerId !== event.pointerId
+      ) {
         return;
       }
 
@@ -517,7 +599,7 @@ if (catalogGrid) {
       const absX = Math.abs(deltaX);
       const absY = Math.abs(deltaY);
 
-      // Не реагируем на микродвижения.
+      // Реакция практически с первого движения.
       if (
         gestureDirection === null &&
         absX < DIRECTION_THRESHOLD &&
@@ -526,21 +608,35 @@ if (catalogGrid) {
         return;
       }
 
-      // Фиксируем направление один раз за жест.
+      /*
+        Горизонтальному направлению даём приоритет.
+        Например, при движении пальца немного по диагонали
+        слайдер всё равно будет листаться.
+      */
       if (gestureDirection === null) {
-        gestureDirection = absX > absY ? 'horizontal' : 'vertical';
+        gestureDirection =
+          absX >= absY * HORIZONTAL_DIRECTION_RATIO
+            ? 'horizontal'
+            : 'vertical';
       }
 
-      // Вертикальный жест не блокируем —
-      // на телефоне страница продолжает прокручиваться.
+      // Чисто вертикальный жест оставляем странице.
       if (gestureDirection === 'vertical') {
         return;
       }
 
-      isDragging = true;
+      // Горизонтальный drag определён.
+      if (!isDragging) {
+        isDragging = true;
+        catalogGrid.classList.add('is-dragging');
 
-      // Для touch-устройств предотвращаем стандартный горизонтальный скролл.
-      if (event.pointerType !== 'mouse' && event.cancelable) {
+        // Захватываем указатель только после начала drag,
+        // а не при обычном тапе по карточке.
+        catalogGrid.setPointerCapture?.(event.pointerId);
+      }
+
+      // Запрещаем браузеру забирать горизонтальный жест.
+      if (event.cancelable) {
         event.preventDefault();
       }
 
@@ -551,207 +647,225 @@ if (catalogGrid) {
   );
 
   function finishCatalogDrag(event) {
-    if (!isPointerDown) {
+    if (
+      !isPointerDown ||
+      (event?.pointerId !== undefined &&
+        event.pointerId !== activePointerId)
+    ) {
       return;
     }
 
-    isPointerDown = false;
-
-    if (event?.pointerId !== undefined) {
-      catalogGrid.releasePointerCapture?.(event.pointerId);
+    if (
+      activePointerId !== null &&
+      catalogGrid.hasPointerCapture?.(activePointerId)
+    ) {
+      catalogGrid.releasePointerCapture?.(activePointerId);
     }
+
+    const wasDragging = isDragging;
+
+    isPointerDown = false;
+    isDragging = false;
+    gestureDirection = null;
+    activePointerId = null;
 
     catalogGrid.classList.remove('is-dragging');
 
-    // Оставляем isDragging до завершения click-события,
-    // чтобы карточка не открывалась после перетаскивания.
-    setTimeout(() => {
-      isDragging = false;
-      gestureDirection = null;
-    }, 0);
+    /*
+      После перетаскивания браузер может отправить click.
+      Блокируем только этот единственный ложный клик.
+    */
+    if (wasDragging) {
+      preventNextClick = true;
+
+      setTimeout(function () {
+        preventNextClick = false;
+      }, 350);
+    }
+
+    updateArrows();
   }
 
-  catalogGrid.addEventListener(
-    'pointerup',
-    finishCatalogDrag,
-    { passive: true }
-  );
+  catalogGrid.addEventListener('pointerup', finishCatalogDrag, {
+    passive: true
+  });
 
-  catalogGrid.addEventListener(
-    'pointercancel',
-    finishCatalogDrag,
-    { passive: true }
-  );
+  catalogGrid.addEventListener('pointercancel', finishCatalogDrag, {
+    passive: true
+  });
 
-  catalogGrid.addEventListener(
-    'pointerdown',
-    function () {
-      if (DESKTOP_QUERY.matches) {
-        catalogGrid.classList.add('is-dragging');
-      }
-    },
-    { passive: true }
-  );
+  // Если палец/мышь отпущены за пределами каталога.
+  window.addEventListener('pointerup', finishCatalogDrag, {
+    passive: true
+  });
 
-  // Не открываем ссылку/карточку, если пользователь именно перетаскивал каталог.
   catalogGrid.addEventListener(
     'click',
     function (event) {
-      if (isDragging) {
-        event.preventDefault();
-        event.stopPropagation();
+      if (!preventNextClick) {
+        return;
       }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      preventNextClick = false;
     },
     true
   );
-} 
 
-  // =========================================================
-  // КАТАЛОГ И ВКЛАДКИ КАТЕГОРИЙ
-  // =========================================================
+  // ---------------------------------------------------------
+  // ВКЛАДКИ КАТЕГОРИЙ
+  // ---------------------------------------------------------
 
-  const catalog = document.querySelector('#catalog');
+  const catalogTabs = catalog?.querySelector('.catalog-tabs');
 
-  if (catalog) {
-    const catalogTabs = catalog.querySelector('.catalog-tabs');
-    const catalogGrid = catalog.querySelector('.catalog-grid');
+  if (catalogTabs) {
+    const tabButtons = Array.from(
+      catalogTabs.querySelectorAll('.tab-btn')
+    );
 
-    if (catalogTabs && catalogGrid) {
-      const tabButtons = Array.from(
-        catalogTabs.querySelectorAll('.tab-btn')
-      );
+    const productCards = Array.from(
+      catalogGrid.querySelectorAll('.product-card')
+    );
 
-      const productCards = Array.from(
-        catalogGrid.querySelectorAll('.product-card')
-      );
+    const LEAVE_DURATION = 260;
+    const ENTER_DELAY = 70;
+    const LEAVE_DELAY = 35;
 
-      const LEAVE_DURATION = 260;
-      const ENTER_DELAY = 70;
-      const LEAVE_DELAY = 35;
+    let isSwitchingCategory = false;
+    let animationTimer = null;
 
-      let isSwitchingCategory = false;
-      let animationTimer = null;
-
-      function getCardsByCategory(category) {
-        return productCards.filter(function (card) {
-          return card.dataset.category === category;
-        });
-      }
-
-      function setActiveTab(activeButton) {
-        tabButtons.forEach(function (button) {
-          const isActive = button === activeButton;
-
-          button.classList.toggle('is-active', isActive);
-          button.classList.toggle('active', isActive);
-          button.setAttribute('aria-selected', String(isActive));
-        });
-      }
-
-      function showInitialCategory(category) {
-        productCards.forEach(function (card) {
-          const isCurrentCategory = card.dataset.category === category;
-
-          card.classList.toggle('is-hidden', !isCurrentCategory);
-          card.classList.toggle('hidden', !isCurrentCategory);
-
-          card.classList.remove('is-entering', 'is-leaving');
-        });
-      }
-
-      function switchCategory(category) {
-        if (animationTimer) {
-          clearTimeout(animationTimer);
-        }
-
-        const visibleCards = productCards.filter(function (card) {
-          return !card.classList.contains('is-hidden');
-        });
-
-        const nextCards = getCardsByCategory(category);
-
-        isSwitchingCategory = true;
-        catalogGrid.classList.add('is-switching');
-
-        visibleCards.forEach(function (card, index) {
-          setTimeout(function () {
-            card.classList.add('is-leaving');
-          }, index * LEAVE_DELAY);
-        });
-
-        const leaveTotalTime =
-          LEAVE_DURATION +
-          Math.max(0, visibleCards.length - 1) * LEAVE_DELAY;
-
-        animationTimer = setTimeout(function () {
-          productCards.forEach(function (card) {
-            const isNextCategory = card.dataset.category === category;
-
-            card.classList.remove('is-leaving');
-
-            if (!isNextCategory) {
-              card.classList.add('is-hidden', 'hidden');
-              return;
-            }
-
-            card.classList.remove('is-hidden', 'hidden');
-            card.classList.add('is-entering');
-          });
-
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              nextCards.forEach(function (card, index) {
-                setTimeout(function () {
-                  card.classList.remove('is-entering');
-                }, index * ENTER_DELAY);
-              });
-
-              const enterTotalTime =
-                LEAVE_DURATION +
-                Math.max(0, nextCards.length - 1) * ENTER_DELAY;
-
-              setTimeout(function () {
-                catalogGrid.classList.remove('is-switching');
-                isSwitchingCategory = false;
-              }, enterTotalTime);
-            });
-          });
-        }, leaveTotalTime);
-      }
-
-      const initialTab =
-        tabButtons.find(function (button) {
-          return (
-            button.classList.contains('is-active') ||
-            button.classList.contains('active')
-          );
-        }) || tabButtons[0];
-
-      if (initialTab) {
-        setActiveTab(initialTab);
-        showInitialCategory(initialTab.dataset.category);
-      }
-
-      catalogTabs.addEventListener('click', function (event) {
-        const clickedTab = event.target.closest('.tab-btn');
-
-        if (
-          !clickedTab ||
-          !catalogTabs.contains(clickedTab) ||
-          isSwitchingCategory ||
-          clickedTab.classList.contains('is-active')
-        ) {
-          return;
-        }
-
-        setActiveTab(clickedTab);
-        switchCategory(clickedTab.dataset.category);
-
-        catalogGrid.scrollLeft = 0;
+    function getCardsByCategory(category) {
+      return productCards.filter(function (card) {
+        return card.dataset.category === category;
       });
     }
-  }
 
+    function setActiveTab(activeButton) {
+      tabButtons.forEach(function (button) {
+        const isActive = button === activeButton;
+
+        button.classList.toggle('is-active', isActive);
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-selected', String(isActive));
+      });
+    }
+
+    function showInitialCategory(category) {
+      productCards.forEach(function (card) {
+        const isCurrentCategory =
+          card.dataset.category === category;
+
+        card.classList.toggle('is-hidden', !isCurrentCategory);
+        card.classList.toggle('hidden', !isCurrentCategory);
+
+        card.classList.remove('is-entering', 'is-leaving');
+      });
+
+      requestAnimationFrame(function () {
+        catalogGrid.dispatchEvent(new Event('catalog:refresh'));
+      });
+    }
+
+    function switchCategory(category) {
+      if (animationTimer) {
+        clearTimeout(animationTimer);
+      }
+
+      const visibleCards = productCards.filter(function (card) {
+        return !card.classList.contains('is-hidden');
+      });
+
+      const nextCards = getCardsByCategory(category);
+
+      isSwitchingCategory = true;
+      catalogGrid.classList.add('is-switching');
+
+      visibleCards.forEach(function (card, index) {
+        setTimeout(function () {
+          card.classList.add('is-leaving');
+        }, index * LEAVE_DELAY);
+      });
+
+      const leaveTotalTime =
+        LEAVE_DURATION +
+        Math.max(0, visibleCards.length - 1) * LEAVE_DELAY;
+
+      animationTimer = setTimeout(function () {
+        productCards.forEach(function (card) {
+          const isNextCategory =
+            card.dataset.category === category;
+
+          card.classList.remove('is-leaving');
+
+          if (!isNextCategory) {
+            card.classList.add('is-hidden', 'hidden');
+            return;
+          }
+
+          card.classList.remove('is-hidden', 'hidden');
+          card.classList.add('is-entering');
+        });
+
+        // После смены категории всегда начинаем с первой карточки.
+        catalogGrid.scrollLeft = 0;
+
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            nextCards.forEach(function (card, index) {
+              setTimeout(function () {
+                card.classList.remove('is-entering');
+              }, index * ENTER_DELAY);
+            });
+
+            const enterTotalTime =
+              LEAVE_DURATION +
+              Math.max(0, nextCards.length - 1) * ENTER_DELAY;
+
+            setTimeout(function () {
+              catalogGrid.classList.remove('is-switching');
+              isSwitchingCategory = false;
+
+              catalogGrid.dispatchEvent(
+                new Event('catalog:refresh')
+              );
+            }, enterTotalTime);
+          });
+        });
+      }, leaveTotalTime);
+    }
+
+    const initialTab =
+      tabButtons.find(function (button) {
+        return (
+          button.classList.contains('is-active') ||
+          button.classList.contains('active')
+        );
+      }) || tabButtons[0];
+
+    if (initialTab) {
+      setActiveTab(initialTab);
+      showInitialCategory(initialTab.dataset.category);
+    }
+
+    catalogTabs.addEventListener('click', function (event) {
+      const clickedTab = event.target.closest('.tab-btn');
+
+      if (
+        !clickedTab ||
+        !catalogTabs.contains(clickedTab) ||
+        isSwitchingCategory ||
+        clickedTab.classList.contains('is-active')
+      ) {
+        return;
+      }
+
+      setActiveTab(clickedTab);
+      switchCategory(clickedTab.dataset.category);
+    });
+  }
+}
   // =========================================================
   // СЛАЙДЕР ИЗОБРАЖЕНИЙ В КАРТОЧКАХ
   // =========================================================
