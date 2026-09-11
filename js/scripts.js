@@ -1658,3 +1658,27 @@ document.addEventListener('DOMContentLoaded', function () {
     row.appendChild(toggleButton);
   });
 });
+
+
+document.querySelectorAll('img').forEach((img) => {
+  img.addEventListener('error', function () {
+    this.onerror = null; // предотвращает бесконечный цикл, если заглушка тоже не загрузится
+    this.src = '/images/placeholder.png';
+  });
+});
+
+document.querySelectorAll('img').forEach((img) => {
+  img.addEventListener('error', () => {
+    img.style.display = 'none'; // скрыть битую картинку
+  });
+});
+
+document.addEventListener(
+  'error',
+  (event) => {
+    if (event.target.tagName === 'IMG') {
+      event.target.style.display = 'none';
+    }
+  },
+  true // важно: событие error не всплывает, поэтому используем capture
+);
