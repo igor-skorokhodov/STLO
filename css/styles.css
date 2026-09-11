@@ -418,12 +418,6 @@ body.modal-open {
   box-shadow: 0 4px 10px rgba(0, 86, 179, 0.2);
 }
 
-.catalog-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
-  gap: 25px;
-  touch-action: pan-y;
-}
 
 /* Новая структура карточки с GRID */
 .product-card {
@@ -646,28 +640,7 @@ body.modal-open {
     font-size: 13px;
   }
 
-  /* Сетка становится горизонтальной лентой */
-  .catalog-grid {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    gap: 16px;
-    padding-bottom: 15px;
-    margin: 0 -15px;
-    padding-left: 15px;
-    padding-right: 15px;
-    -webkit-overflow-scrolling: touch;
-  }
 
-  .catalog-grid::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .catalog-grid::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-  }
 
   /* Карточка занимает 100% ширины экрана и перестраивается в одну колонку */
   .product-card {
@@ -2708,12 +2681,7 @@ img {
   display: none;
 }
 
-/* Важно: карточки не должны сжиматься в одну строку */
-.catalog-grid .catalog-card {
-  flex: 0 0 calc((100% - 24px) / 3);
-  min-width: 260px;
-  scroll-snap-align: start;
-}
+
 
 /* Состояние во время перетаскивания мышью */
 .catalog-grid.is-dragging {
@@ -2784,24 +2752,6 @@ img {
    RESPONSIVE CARD WIDTHS
    ========================================================= */
 
-/* Планшеты: две карточки в зоне видимости */
-@media (max-width: 1024px) {
-  .catalog-grid .catalog-card {
-    flex-basis: calc((100% - 12px) / 2);
-  }
-}
-
-/* Мобильные: одна карточка, часть следующей видна как подсказка */
-@media (max-width: 768px) {
-  .catalog-grid {
-    padding-right: 28px;
-  }
-
-  .catalog-grid .catalog-card {
-    flex-basis: 86%;
-    min-width: 0;
-  }
-}
 
 /* На touch-устройствах управление свайпом, без стрелок */
 @media (hover: none),
@@ -2955,15 +2905,10 @@ img {
 }
 
 @media (max-width: 760px) {
-  .catalog-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .quiz__result {
     grid-template-columns: 1fr;
   }
 }
-
 /* Projects */
 .projects-grid {
   display: grid;
@@ -3745,32 +3690,6 @@ body.brands-modal-open {
     padding: 10px;
   }
 
-  .catalog-grid {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    grid-template-columns: none !important;
-    gap: 16px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-    scrollbar-width: none;
-  }
-
-  .catalog-grid::-webkit-scrollbar {
-    display: none;
-  }
-
-  .catalog-grid .product-card:not(.hidden) {
-    display: grid;
-    flex: 0 0 calc(100% - 30px) !important;
-    width: calc(100% - 30px) !important;
-    max-width: calc(100% - 30px) !important;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
 }
 
 
@@ -3817,9 +3736,7 @@ body.brands-modal-open {
 }
 
 /* Каталог: разрешаем вертикальную прокрутку сайта при свайпе по карточке */
-#catalog .catalog-grid {
-  touch-action: pan-y pinch-zoom !important;
-}
+
 
 .card-actions {
   display: flex;
@@ -4026,5 +3943,185 @@ body { color: var(--text); background: #fff; }
 
     -webkit-user-drag: none;
     user-select: none;
+  }
+}
+
+/* =========================================================
+   КАТАЛОГ — ЕДИНЫЙ ГОРИЗОНТАЛЬНЫЙ СЛАЙДЕР
+   Desktop: drag мышью + стрелки.
+   Mobile: горизонтальный свайп.
+   ========================================================= */
+
+.catalog-slider {
+  position: relative;
+  min-width: 0;
+}
+
+/* Контейнер слайдера */
+#catalog .catalog-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 16px;
+
+  width: 100%;
+  min-width: 0;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  padding: 4px 0 14px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+
+  /*
+    Вертикальный жест остаётся прокруткой страницы.
+    Горизонтальный обрабатывается JS-слайдером.
+  */
+  touch-action: pan-y pinch-zoom;
+
+  cursor: grab;
+  scrollbar-width: none;
+}
+
+/* Скрываем нативную полосу */
+#catalog .catalog-grid::-webkit-scrollbar {
+  display: none;
+}
+
+/*
+  Главное исправление:
+  у вас реальные карточки — .product-card, не .catalog-card.
+*/
+#catalog .catalog-grid > .product-card {
+  display: grid;
+  flex: 0 0 calc((100% - 32px) / 3);
+  min-width: 320px;
+
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Скрытые карточки не должны занимать место в горизонтальной ленте */
+#catalog .catalog-grid > .product-card.hidden,
+#catalog .catalog-grid > .product-card.is-hidden {
+  display: none !important;
+}
+
+/* Во время drag отключаем только выделение текста, не клики карточек */
+#catalog .catalog-grid.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  scroll-snap-type: none;
+}
+
+/* ---------- Стрелки только для desktop ---------- */
+
+.catalog-slider__arrow {
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+  padding: 0;
+
+  color: var(--brand-navy, #003b7a);
+  font-size: 28px;
+  line-height: 1;
+
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+
+  transform: translateY(-50%);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.catalog-slider__arrow:hover {
+  background: var(--brand-blue-soft, #eaf3ff);
+  transform: translateY(-50%) scale(1.06);
+}
+
+.catalog-slider__arrow:focus-visible {
+  outline: 3px solid rgba(0, 59, 122, 0.45);
+  outline-offset: 3px;
+}
+
+.catalog-slider__arrow:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.catalog-slider__arrow--prev {
+  left: 10px;
+}
+
+.catalog-slider__arrow--next {
+  right: 10px;
+}
+
+/* ---------- Планшет: две карточки ---------- */
+
+@media (max-width: 1024px) {
+  #catalog .catalog-grid > .product-card {
+    flex-basis: calc((100% - 16px) / 2);
+    min-width: 300px;
+  }
+}
+
+/* ---------- Телефон: одна карточка + край следующей ---------- */
+
+@media (max-width: 768px) {
+  #catalog .catalog-grid {
+    gap: 14px;
+    margin-right: -16px;
+    padding: 4px 16px 14px 0;
+    scroll-snap-type: x mandatory;
+  }
+
+  #catalog .catalog-grid > .product-card {
+    flex: 0 0 86%;
+    width: 86%;
+    min-width: 0;
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+
+    /* Ваша внутренняя мобильная структура карточки */
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+    padding: 18px;
+  }
+
+  #catalog .product-card .card-slider {
+    grid-column: 1;
+    grid-row: 1;
+    width: 100%;
+    height: 180px;
+  }
+
+  #catalog .product-card .card-info {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  #catalog .product-card .card-bottom {
+    grid-column: 1;
+    grid-row: 3;
+  }
+}
+
+/* На тач-устройствах стрелки скрыты: управление свайпом */
+@media (hover: none), (pointer: coarse) {
+  .catalog-slider__arrow {
+    display: none;
   }
 }
