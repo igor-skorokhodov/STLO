@@ -4089,10 +4089,8 @@ body { color: var(--text); background: #fff; }
   #catalog .catalog-grid > .product-card {
     flex: 0 0 86%;
     width: 86%;
-    min-width: 0;
-    margin-left: 20px;
-            align-items: center;
-        justify-content: center;
+    min-width: 320px;
+    margin-left: 10px;
 
     scroll-snap-align: start;
     scroll-snap-stop: always;
