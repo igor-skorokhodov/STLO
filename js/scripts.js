@@ -974,7 +974,7 @@ if (catalogGrid) {
         return {
           name: 'ITH 410 Wi (зимний)',
           desc: 'Винилэстеровый состав для быстрых монтажных работ при отрицательных температурах (до -20°C).',
-          image: 'images/products/ith-410-ve-winter.webp'
+          image: 'img/anchors/ITH-410-Wi-1-300x110.png'
         };
       }
 
@@ -986,7 +986,7 @@ if (catalogGrid) {
         return {
           name: 'ITH 585 EPOXE',
           desc: 'Чистый эпоксидный состав для высочайших нагрузок, глубокой анкеровки и алмазного бурения.',
-          image: 'images/products/ith-500-epox-bit-ex.webp'
+          image: 'img/anchors/ITH-585-EPOXe-A-300x101.png'
         };
       }
 
@@ -997,7 +997,7 @@ if (catalogGrid) {
         return {
           name: 'ITH 300 Pe (Полиэстер)',
           desc: 'Оптимальный экономичный состав для пустотелого кирпича, пеноблока и легких бетонов.',
-          image: 'images/products/ith-300-pe.webp'
+          image: 'img/anchors/ITH-300-Pe-300x96.png'
         };
       }
 
@@ -1005,14 +1005,14 @@ if (catalogGrid) {
         return {
           name: 'ITH 410 Ve (Винилэстер)',
           desc: 'Устойчив к влаге и воде в отверстиях, повышенная химическая стойкость и надежность.',
-          image: 'images/products/ith-410-ve.webp'
+          image: 'img/anchors/ITH-410-Ve-1-300x117.png'
         };
       }
 
       return {
         name: 'ITH 410 Ve (Винилэстер)',
         desc: 'Универсальный и эффективный химический анкер для бетона и сложного монтажа.',
-        image: 'images/products/ith-410-ve.webp'
+        image: 'img/anchors/ITH-410-Ve-1-300x117.png'
       };
     }
 
@@ -1506,67 +1506,7 @@ if (navToggle && navMenu) {
     });
   }
 
-  // =========================================================
-  // ОБРАБОТКА ОШИБОК ИЗОБРАЖЕНИЙ
-  // =========================================================
 
-  const IMAGE_PLACEHOLDER =
-    'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
-  function setImagePlaceholder(image) {
-    if (!image || image.tagName !== 'IMG') {
-      return;
-    }
-
-    if (image.dataset.errorHandlerInitialized === 'true') {
-      return;
-    }
-
-    image.dataset.errorHandlerInitialized = 'true';
-
-    if (image.src && image.src.startsWith('file:///')) {
-      image.src = IMAGE_PLACEHOLDER;
-    }
-
-    image.addEventListener('error', function onImageError() {
-      if (!image.src.startsWith('data:')) {
-        image.src = IMAGE_PLACEHOLDER;
-      }
-
-      image.removeEventListener('error', onImageError);
-    });
-  }
-
-  document.querySelectorAll('img').forEach(setImagePlaceholder);
-
-  if (window.MutationObserver) {
-    const imageObserver = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        if (mutation.type !== 'childList') {
-          return;
-        }
-
-        mutation.addedNodes.forEach(function (node) {
-          if (node.nodeType !== 1) {
-            return;
-          }
-
-          if (node.tagName === 'IMG') {
-            setImagePlaceholder(node);
-          }
-
-          if (node.querySelectorAll) {
-            node.querySelectorAll('img').forEach(setImagePlaceholder);
-          }
-        });
-      });
-    });
-
-    imageObserver.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-  }
 
   // =========================================================
   // ESC — ЗАКРЫТИЕ ОСНОВНЫХ ПОПАПОВ
@@ -1643,7 +1583,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggleButton = document.createElement('button');
     toggleButton.type = 'button';
     toggleButton.className = 'param-more-btn';
-    toggleButton.textContent = '...';
+    toggleButton.textContent = 'еще...';
     toggleButton.setAttribute('aria-expanded', 'false');
     toggleButton.setAttribute('aria-label', 'Показать все значения');
 

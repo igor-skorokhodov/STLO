@@ -17,13 +17,13 @@
   <!-- Шапка -->
   <header class="header">
     <div class="container header__row">
-      <a class="brand" href="/">
+      <div class="logo_container">
         <img alt="Скай Трейд — химические анкеры" class="brand__logo" src="./img/logo.png" />
         <div class="brand__text">
           <strong>Скай Трейд</strong>
           <span>Химические анкера оптом</span>
         </div>
-      </a>
+      </div>
       <nav aria-label="Основная навигация" class="nav">
         <button aria-label="Открыть меню" class="nav__toggle" type="button">
           <span></span>
@@ -42,7 +42,7 @@
           <a class="header__phone" href="tel:+74957241180">+7 (495) 724-11-80</a>
           <a class="header__phone" href="tel:+74957241180">info@skyfix.ru</a>
         </div>
-        <a class="btn btn--primary js-open-form-popup" data-title="Заказать звонок" href="#lead">Заказать звонок</a>
+        <a class="btn-order js-open-form-popup" data-title="Заказать звонок" href="#lead">Заказать звонок</a>
       </div>
     </div>
   </header>
@@ -86,8 +86,8 @@
     <!-- ПРАВЫЙ НИЖНИЙ -->
     <div class="banner-item banner-item-2">
       <form action="#" class="form form--card" id="lead" method="get">
-        <button class="btn btn--primary btn--full js-open-form-popup" data-title="Оставить заявку"
-          type="button">Оставить заявку</button>
+        <button class="btn btn--primary btn--full js-open-form-popup" data-title="Получить скидку 5% на первый заказ"
+          type="button">Получить скидку 5% <br> на первый заказ</button>
       </form>
     </div>
   </div>
@@ -220,9 +220,10 @@
       <div class="result-card">
         <div class="result-product-image">
           <img alt="Химический анкер ITH 410 Ve" id="recommended-product-image"
-            src="./images/products/ith-410-ve.webp" />
+            src="./images/polyester-1.png" />
         </div>
         <div class="result-product-info">
+           <img class="quiz-logo" alt="SORMATlogo" src="./img/brands/11_logo_SORMAT.png" />
           <div class="result-product-title" id="recommended-product-name">
             ITH 410 Ve
           </div>
@@ -1517,11 +1518,12 @@
         </div>
       <div class="grid grid--2">
         <ul class="list">
+          <li>Отсрочка платежа для надежных партнеров</li>
+          <li>Индивидуальные условия для постоянных клиентов</li>
+          <br>
           <li>Отгрузка со склада в день оплаты</li>
           <li>Оперативно отправим ваш заказ в любую точку России проверенным логистическим оператором</li>
           <li>Срочная доставка по Москве и Московской области</li>
-          <li>Отсрочка платежа для надежных партнеров</li>
-          <li>Индивидуальные условия для постоянных клиентов</li>
         </ul>
       </div>
     </div>
@@ -1568,8 +1570,7 @@
               Скай Трейд
               <span>Химические анкера оптом</span>
             </div>
-          </div>
-          <ul class="footer__list">
+                  <ul class="footer__list">
             <li><a class="footer__list" href="tel:+74957241180">+7 (495) 724‑11‑80</a></li>
             <li><a class="footer__list" href="/cdn-cgi/l/email-protection#8fe6e1e9e0cffce4f6fbfdeeebeaa1fdfa"><span
                   class="__cf_email__"
@@ -1577,8 +1578,15 @@
             <li>Режим работы: Пн–Пт, 9:00–18:00</li>
             <li>Адрес: г. Москва, пос. подсобного хоз‑ва Воскресенское, 24А</li>
           </ul>
+          </div>
+    
+
+          <div class="smm_logos">
+            <a href="https://example.com"><img class="smm_logos_img" src="./img/MAX.svg" alt="max_logo"></a>
+            <a href="https://example.com"><img class="smm_logos_img" src="./img/VK.png" alt="vk_logo"></a>
+          </div>
         </div>
-        <div class="footer__col">
+        <div class="brand brand--footer">
           <h3 class="footer__h">Реквизиты</h3>
           <ul class="footer__list">
             <li>ООО «СкайТрейд»</li>
