@@ -1419,46 +1419,93 @@ if (navToggle && navMenu) {
     }
   }
 
+  // =========================================================
+  // COOKIE POPUP
+  // =========================================================
 
+  const cookiePopup = document.getElementById('cookie-popup');
+  const cookieAcceptButton = document.getElementById('cookie-accept');
+
+  try {
+    if (
+      cookiePopup &&
+      !localStorage.getItem('cookieConsent')
+    ) {
+      cookiePopup.hidden = false;
+    }
+
+    if (cookieAcceptButton) {
+      cookieAcceptButton.addEventListener('click', function () {
+        localStorage.setItem('cookieConsent', 'true');
+
+        if (cookiePopup) {
+          cookiePopup.hidden = true;
+        }
+      });
+    }
+  } catch (error) {
+    console.warn('Cookie init error:', error);
+  }
 
   // =========================================================
   // ПОПАП ПОЛИТИКИ / ИНФОРМАЦИИ
   // =========================================================
 
+  const policyOverlay = document.getElementById('popupOverlay');
+  const policyCloseButton = document.getElementById('popupClose');
 
-const policyOpeners = document.querySelectorAll('.js-open-policy');
-const policyClosers = document.querySelectorAll('.js-close-policy');
+  if (policyOverlay) {
+    const policyOpenersSelectors = [
+      '#openPopupBtn',
+      '#openPopupBtn2',
+      '#openPopupBtn3',
+      '#openPopupBtn4',
+      '#openPopupBtnQuiz'
+    ];
 
-// Открытие нужного попапа
-policyOpeners.forEach(button => {
-  button.addEventListener('click', (e) => {
-    e.preventDefault();
-    const targetId = button.getAttribute('data-target');
-    if (targetId) {
-      const targetPopup = document.getElementById(targetId);
-      if (targetPopup) {
-        targetPopup.removeAttribute('hidden');
+    const policyOpeners = policyOpenersSelectors
+      .map(function (selector) {
+        return document.querySelector(selector);
+      })
+      .filter(Boolean);
+
+    function openPolicyPopup(event) {
+      if (event) {
+        event.preventDefault();
       }
-    }
-  });
-});
 
-// Закрытие по крестику
-policyClosers.forEach(button => {
-  button.addEventListener('click', (e) => {
-    e.preventDefault();
-    button.closest('.overlay').setAttribute('hidden', '');
-  });
-});
-
-// Закрытие по клику вне окна
-document.querySelectorAll('.overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.setAttribute('hidden', '');
+      policyOverlay.removeAttribute('hidden');
     }
-  });
-});
+
+    function closePolicyPopup(event) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      policyOverlay.setAttribute('hidden', '');
+    }
+
+    policyOpeners.forEach(function (button) {
+      button.addEventListener('click', openPolicyPopup);
+    });
+
+    if (policyCloseButton) {
+      policyCloseButton.addEventListener('click', closePolicyPopup);
+    }
+
+    policyOverlay.addEventListener('click', function (event) {
+      if (event.target === policyOverlay) {
+        closePolicyPopup();
+      }
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !policyOverlay.hidden) {
+        closePolicyPopup();
+      }
+    });
+  }
+
 
 
   // =========================================================

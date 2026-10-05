@@ -1921,6 +1921,7 @@ body.modal-open {
 
 .banner-item-2 {
   grid-row: 2 / 3;
+  background-image: url("/img/fon.jpg");
 }
 
 .banner-item h1 {
@@ -3862,7 +3863,7 @@ body { color: var(--text); background: #fff; }
 .dot.active { background: var(--brand-orange); }
 .banner-item { border: 1px solid rgba(0,59,122,.12); }
 .banner-item-1 { background: var(--brand-navy); }
-.banner-item-2 { background: var(--brand-slate); }
+.banner-item-2 { background: var(--brand-slate);   background-image: url('/img/fon.jpg');}
 
 /* Content hierarchy */
 .section { padding: 20px 0; }
