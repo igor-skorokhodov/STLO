@@ -1921,7 +1921,9 @@ body.modal-open {
 
 .banner-item-2 {
   grid-row: 2 / 3;
-  background-image: url("/img/fon.jpg");
+  background-image: url("../img/fon.jpg");
+  background-size: cover;
+
 }
 
 .banner-item h1 {
@@ -1953,6 +1955,8 @@ body.modal-open {
 
   .banner-item-2 {
     grid-row: 3;
+      background-image: url("../img/fon.jpg");
+  background-size: cover;
   }
 }
 
@@ -2482,7 +2486,7 @@ img {
 }
 
 .footer__copy {
-  color: var(--muted);
+  color: var(--muted) !important;
   font-size: 13px;
 }
 
@@ -2644,12 +2648,14 @@ img {
 }
 
 .slider-bullets {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: inline-flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex-direction: column;
+    max-width: max-content;
 }
 
 .slider-bullets li {
@@ -3863,7 +3869,7 @@ body { color: var(--text); background: #fff; }
 .dot.active { background: var(--brand-orange); }
 .banner-item { border: 1px solid rgba(0,59,122,.12); }
 .banner-item-1 { background: var(--brand-navy); }
-.banner-item-2 { background: var(--brand-slate);   background-image: url('/img/fon.jpg');}
+.banner-item-2 { background: var(--brand-slate);   background-image: url("../img/fon.jpg"); background-size: cover;}
 
 /* Content hierarchy */
 .section { padding: 20px 0; }
@@ -4135,6 +4141,10 @@ body { color: var(--text); background: #fff; }
     grid-column: 1;
     grid-row: 3;
   }
+}
+
+.card-bottom {
+  align-self: center;
 }
 
 /* На тач-устройствах стрелки скрыты: управление свайпом */
