@@ -1585,6 +1585,7 @@ body.modal-open {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  object-fit: contain;
 }
 
 .certs img:hover {
@@ -4170,8 +4171,9 @@ body { color: var(--text); background: #fff; }
 }
 
 .smm_logos_img {
-  width: 30px;
+  width: 35px;
   height: 30px;
+      object-fit: contain;
 }
 
 .logo_container {
